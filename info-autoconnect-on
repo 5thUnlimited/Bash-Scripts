@@ -1,0 +1,29 @@
+#! /usr/bin/bash
+NC="\e[0;0m"
+
+# This script finds network connections that do not have auto connect disabled
+#
+#
+# List all network connections
+echo ' '
+nmcli -p connection show
+printf  "\n\e[1;97m
+-------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------
+
+
+     "
+printf  "\n\e[1;97mHere are the files have autoconnect turned On:\n"
+
+grep -L autoconnect=false /etc/NetworkManager/system-connections/*
+
+total=$(grep -L autoconnect=false /etc/NetworkManager/system-connections/* | wc -l)
+
+
+echo -e '\n\n\e[1;33m+++ There is a total of '$total 'network(s) that will try to connect automatically +++\e[0;0m'
+
+echo '
+
+     '
+
+

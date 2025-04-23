@@ -1,0 +1,26 @@
+#! /usr/bin/bash
+
+# maps laptop touchscreen correctly
+NC='\e[0m'
+
+IBLACK='\033[1;100m'   # Black
+IRED='\033[0;101m'     # Red
+IGREEN='\033[0;102m'   # Green
+IYELLOW='\033[0;33m'  # Yellow
+IBLUE='\033[0;104m'    # Blue
+IPURPLE='\033[0;105m'  # Purple
+ICYAN='\033[0;106m'    # Cyan
+IWHITE='\033[0;107m'   # White
+
+BRGREEN='\e[1;4;92;100m'
+
+ID=$(xinput list | head |  grep 'ELAN9008:00 04F3:40C3' | cut -c 55-56)
+
+printf "${BRGREEN}Mapping touchscreen\n"
+
+xinput map-to-output $ID eDP-1
+
+printf "${NC}Done"
+
+
+

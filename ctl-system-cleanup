@@ -1,0 +1,217 @@
+#! /usr/bin/bash
+
+NC='\033[0m'              # Text Reset
+#       Regular Colors #
+BRED='\033[1;31m'          # RED
+BGREEN='\033[1;32m'        # GREEN
+BYELLOW='\033[1;33m'       # YELLOW
+BWHITE='\033[1;37m'        # WHITE
+RED='\033[0;31m'
+
+CHKRT() {
+
+if [ $(id -u) -ne 0 ];
+ then
+   echo "\e[0;37mMust run as root - exiting"
+   exit 1
+ else
+   printf "\n\n\e[1;31mThis will delete logs and several types of files."
+   sleep 1
+   printf "\n\nYou will have a chance to cancel before first task begins. Abort if you are not sure you want to continue!.  \n\n"
+   sleep 2
+
+fi
+
+}
+
+#
+#
+#
+
+1-DEL_OLD() {
+
+# function that can delete files of certain age. Not currently using
+
+directory="/tmp/"
+age=10
+
+# remove anything older than days set by age
+find "$directory" -type f -mtime +"$age" -exec rm -f {} \;
+
+}
+
+#
+#
+#
+
+
+2-CACHE() {
+
+printf "\n${BWHITE}Cleaning cache directories for root and user\n\n${NC}"; sleep .145;
+printf "${BRED}<< Stop task and abort by pressing CTRL+C >>\n${BYELLOW}After countdown, the following directories are set for deletion.\n${NC}"
+echo /home/$(logname)/.cache
+echo /root/.cache
+echo " "
+
+bar='#########################################'
+for (( i=${#bar}; i>0; i-- )); do
+    echo -ne "${bar:1:$i}-\r"
+    sleep .1s
+done
+
+rm -r /home/$(logname)/.cache &>/dev/null
+rm -r /root/.cache &>/dev/null
+
+printf "${BWHITE}Cache files have been deleted\n\n${NC}"
+
+
+}
+
+
+#
+#
+#
+
+
+3-LOGS() {
+
+VAR="rm -rf /var/log"
+#rm -f /var/log/
+rm -rdfv /var/log/apt/* 1&>dev/null
+rm -rdfv /var/log/syslog/*  1&>dev/null
+rm -rdfv /var/log/boot* 1&>dev/null
+rm -rdfv /var/log/sys* 1&>dev/null
+rm -rdfv /var/log/Xorg* 1&>dev/null
+
+printf "${BWHITE}\nVar directory after deleting some system logs\n\n${NC}"
+ls /var/log/
+
+printf "\n\n"
+sleep 2
+
+}
+
+#
+#
+#
+
+4-THUMB() {
+
+# Remove Thumbnail Cache
+rm -rf ~/.cache/thumbnails/*
+
+}
+
+
+
+
+5-MID() {
+
+# Deletes machine id - be careful
+rm -f /var/lib/dbus/machine-id
+dbus-uuidgen > /var/lib/dbus/machine-id
+cp /var/lib/dbus/machine-id /etc/machine-id
+chmod 444 /etc/machine-id
+
+printf "${BWHITE}Machine ID changed\n\n${NC}"
+sleep 2
+
+}
+
+
+6-TOR() {
+
+if [  -e /home/user/.tor/state ];
+ then
+  echo "Clearing tor state file found in user home directory"
+  rm /home/user/.tor/state
+ else
+  echo "No state file for tor inside the home directory at ~/.tor"
+fi
+
+if [  -e /root/.tor/state ];
+ then
+  echo "Clearing tor state file found in root directory"
+  rm /root/.tor/state
+ else
+  echo "No state file for tor inside root directory at /root/.tor"
+fi
+
+if [  -e /var/lib/tor/state ];
+ then
+  echo "Clearing tor state file found in user home directory"
+  rm /var/lib/tor/state
+ else
+  echo "No state file for tor in /var/lib/tor/"
+fi
+
+printf "\n${BYELLOW}Please note other locations could contain tor information and state file\n\n${NC}"
+
+}
+
+
+
+7-TEMP() {
+
+printf "${BWHITE}Deleting all temp files - could cause stability problems - press y to continue\n\n${NC}"
+
+read -p "--> " CONT
+
+if [ $CONT == y ];
+  then
+    sleep .5; rm -r /tmp/*; sleep .5;
+    echo "\nAll files in tmp are deleted\n\n"
+  else
+    printf "files in /tmp/ will not be deleted\n\n"
+    sleep .5
+
+fi
+
+}
+
+
+8-APT() {
+
+printf "${BWHITE}Deleting all unneeded apt packages and cleaning cache - press y to continue\n\n${NC}"
+
+read -p "--> " CONT
+
+if [ $CONT == y ];
+  then
+    sleep .5;
+    apt autoremove
+    apt autoclean
+    apt clean
+    sleep .5;
+    echo "\nCleaned up apt\n\n"
+  else
+    printf "apt changes will not be made\n\n"
+    sleep .5
+
+fi
+
+}
+
+
+
+
+#/#/#/#/#/#/#/#/#/#/#
+# Main body of script
+#\#\#\#\#\#\#\#\#\#\#
+
+
+clear
+# THIS MUST NOT BE COMMENTED OUT - Checks if running as root
+CHKRT
+
+# Comment out any of the functions below that you don't want run
+
+#1DEL_OLD
+2-CACHE
+3-LOGS
+#4-THUMB
+5-MID
+6-TOR
+7-TEMP
+8-APT
+

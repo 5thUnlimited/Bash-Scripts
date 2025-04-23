@@ -1,0 +1,21 @@
+#! /usr/bin/bash
+
+BGREEN='\033[1;32m'       # Green
+BWHITE='\033[1;37m'       # White
+
+
+
+printf "\n\n${BGREEN}IPtables policies:${BWHITE}\n"
+
+iptables  -L -n | grep -i policy
+
+
+printf "\n\n${BGREEN}IP6tables policies:${BWHITE}\n"
+ip6tables  -L -n | grep -i policy
+
+
+
+echo ' '
+printf "\n\n${BGREEN}NAT Table:${BWHITE}\n"
+iptables -t nat -n -v --line-numbers -L | tail -n +1 | grep -v pkts
+#sudo iptables -v -x -L -t nat

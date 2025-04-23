@@ -1,0 +1,9 @@
+#! /usr/bin/bash
+
+clear
+
+printf "\e[1;104m\nStarting scrcpy"
+echo " "
+printf "\n\e[0;0m"
+
+scrcpy -S -w --window-title=host80 --window-borderless -m 1050 --kill-adb-on-close
